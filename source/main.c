@@ -1,52 +1,43 @@
 #include "../header/basic_header.h"
 
-int main() {
-    //Screen dimension constants
-    const int SCREEN_WIDTH = 640;
-    const int SCREEN_HEIGHT = 480;
-    //The window we'll be rendering to
-    SDL_Window *window = NULL;
-    //The surface contained by the window
-    SDL_Surface *screen = NULL;
-    //The image that will be load
-    SDL_Surface *img = NULL;
-    //Main loop flag
-    int quit = 0;
-    //Event handler
-    SDL_Event e;
+int main(int argc, char* argv[])
+{
+	(void)argv;
+	(void)argc;
+    if (SDL_Init(SDL_INIT_VIDEO) == 0) {
+        SDL_Window* window = NULL;
+        SDL_Renderer* renderer = NULL;
 
-    //Start SDL
-    if (!_Sdl_born(SCREEN_WIDTH, SCREEN_HEIGHT, &window, &screen))
-    {
-        printf("Failed to initialize!\n");
-    }
-    else
-    {
-        //Load image
-        img = _load_img("../source/re_src/mew_up.bmp");
-        if (!img)
-        {
-            printf("Failed to load image!\n");
-        }
-        while(!quit)
-        {
-            //Handle events on queue
-            while( SDL_PollEvent( &e ) != 0 )
-            {
-                //User requests quit
-                if( e.type == SDL_QUIT )
-                {
-                    quit = 1;
+        if (SDL_CreateWindowAndRenderer(640, 480, 0, &window, &renderer) == 0) {
+            SDL_bool done = SDL_FALSE;
+
+            while (!done) {
+                SDL_Event event;
+
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+                SDL_RenderClear(renderer);
+
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+                SDL_RenderDrawLine(renderer, 320, 200, 300, 240);
+                SDL_RenderDrawLine(renderer, 300, 240, 340, 240);
+                SDL_RenderDrawLine(renderer, 340, 240, 320, 200);
+                SDL_RenderPresent(renderer);
+
+                while (SDL_PollEvent(&event)) {
+                    if (event.type == SDL_QUIT) {
+                        done = SDL_TRUE;
+                    }
                 }
             }
-            //Apply image
-            SDL_BlitSurface( img, NULL, screen, NULL );
-            //Update the surface
-            SDL_UpdateWindowSurface( window );
+        }
+
+        if (renderer) {
+            SDL_DestroyRenderer(renderer);
+        }
+        if (window) {
+            SDL_DestroyWindow(window);
         }
     }
-    //Free resources and close SDL
-    _close_win(&window, &img);
-    write(STDOUT_FILENO, "Bye...\n",7);
+    SDL_Quit();
     return 0;
 }
